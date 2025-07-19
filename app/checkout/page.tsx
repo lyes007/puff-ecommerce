@@ -49,6 +49,13 @@ export default function CheckoutPage() {
           productId: item.id,
           quantity: item.quantity,
           price: item.price,
+          selectedVariation: item.selectedVariation
+            ? {
+                name: item.selectedVariation.name,
+                value: item.selectedVariation.value,
+                price: item.selectedVariation.price,
+              }
+            : null,
         })),
         total: getCartTotal(cart),
       }
@@ -201,8 +208,8 @@ export default function CheckoutPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
 
             <div className="space-y-4 mb-6">
-              {cart.map((item) => (
-                <div key={item.id} className="flex items-center space-x-4">
+              {cart.map((item, index) => (
+                <div key={`${item.id}-${item.variationId || index}`} className="flex items-center space-x-4">
                   <div className="w-16 h-16 relative flex-shrink-0 image-container">
                     <Image
                       src={item.image || "/placeholder.svg?height=64&width=64"}
@@ -213,10 +220,21 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{item.name}</h3>
+                    {item.selectedVariation && (
+                      <p className="text-sm text-medium-blue">
+                        {item.selectedVariation.name}: {item.selectedVariation.value}
+                      </p>
+                    )}
                     <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                    {item.selectedVariation?.price && item.selectedVariation.price > 0 && (
+                      <p className="text-xs text-gray-500">
+                        Includes +${(item.selectedVariation.price * item.quantity).toFixed(2)} for{" "}
+                        {item.selectedVariation.value}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}

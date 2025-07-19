@@ -1,14 +1,11 @@
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
-        
-
 
 model User {
   id        String   @id @default(cuid())
@@ -29,7 +26,6 @@ model Product {
   name        String
   description String
   price       Float
-  image       String
   category    String
   stock       Int
   lowStockThreshold Int @default(10)
@@ -43,17 +39,36 @@ model Product {
   reviews     Review[]
   variants    ProductVariant[]
   stockLogs   StockLog[]
+  gallery     ProductImage[]
 
   @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  alt       String?
+  isPrimary Boolean @default(false)
+  order     Int     @default(0)
+  createdAt DateTime @default(now())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
 }
 
 model ProductVariant {
   id        String  @id @default(cuid())
   productId String
-  name      String  // e.g., "Flavor", "Size"
-  value     String  // e.g., "Mint", "Large"
-  price     Float?  // Additional price if different
+  name      String  // e.g., "Color", "Size", "Flavor"
+  value     String  // e.g., "Red", "Large", "Mint"
+  price     Float?  // Additional price if different from base
   stock     Int     @default(0)
+  sku       String? // Stock Keeping Unit
+  isActive  Boolean @default(true)
+  order     Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("product_variants")

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Star, Truck, Shield, Clock, Zap, Award, Users, Heart } from "lucide-react"
+import { Star, Truck, Shield, Clock, Zap, Award, Users, Heart, AlertTriangle } from "lucide-react"
 import Navigation from "@/components/navigation"
 import { prisma } from "@/lib/db"
 
@@ -8,6 +8,11 @@ async function getFeaturedProducts() {
   try {
     return await prisma.product.findMany({
       where: { featured: true },
+      include: {
+        gallery: {
+          orderBy: { order: "asc" },
+        },
+      },
       take: 8,
       orderBy: { createdAt: "desc" },
     })
@@ -44,31 +49,23 @@ export default async function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
           <div className="text-center">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 animate-slide-in-top">
-              <span className="block">Premium</span>
-              <span className="block text-cream animate-pulse-custom">Puffs & Vapes</span>
+              <span className="block">Welcome to</span>
+              <span className="block text-cream animate-pulse-custom">Puff Planete</span>
             </h1>
             <p
-              className="text-xl md:text-2xl mb-12 text-white/90 max-w-3xl mx-auto animate-fade-in-up"
+              className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto animate-fade-in-up"
               style={{ animationDelay: "0.3s" }}
             >
-              Discover the finest quality with lightning-fast delivery and convenient pay-on-delivery options
+              Supporting adult smokers on their journey to quit with safer alternatives
             </p>
-            <div
-              className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
-              style={{ animationDelay: "0.6s" }}
-            >
+
+            <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
               <Link
                 href="/products"
                 className="inline-flex items-center px-8 py-4 bg-cream text-dark-blue rounded-full font-bold text-lg hover:bg-white transition-all duration-300 hover-lift hover-glow group"
               >
                 <Zap className="w-5 h-5 mr-2 group-hover:animate-bounce-custom" />
-                Shop Now
-              </Link>
-              <Link
-                href="/about"
-                className="inline-flex items-center px-8 py-4 border-2 border-cream text-cream rounded-full font-bold text-lg hover:bg-cream hover:text-dark-blue transition-all duration-300 hover-lift"
-              >
-                Learn More
+                View Products
               </Link>
             </div>
           </div>
@@ -81,8 +78,8 @@ export default async function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: Users, number: "10K+", label: "Happy Customers" },
-              { icon: Award, number: "500+", label: "Products Sold" },
+              { icon: Users, number: "10K+", label: "Adult Users Supported" },
+              { icon: Award, number: "500+", label: "Products Available" },
               { icon: Truck, number: "24/7", label: "Fast Delivery" },
               { icon: Heart, number: "99%", label: "Satisfaction Rate" },
             ].map((stat, index) => (
@@ -103,13 +100,13 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-dark-blue mb-6 animate-fade-in-up">
-              Why Choose <span className="text-medium-blue">PuffShop</span>?
+              Why Choose <span className="text-medium-blue">Puff Planete</span>?
             </h2>
             <p
               className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in-up"
               style={{ animationDelay: "0.2s" }}
             >
-              Experience the difference with our premium service and quality products
+              Supporting responsible choices for adult smokers seeking alternatives
             </p>
           </div>
 
@@ -139,7 +136,7 @@ export default async function HomePage() {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 hover-lift animate-fade-in-up border border-light-blue/20"
+                className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 hover-lift animate-fade-in-up border border-light-blue/20 stagger-item"
                 style={{ animationDelay: feature.delay }}
               >
                 <div
@@ -168,7 +165,7 @@ export default async function HomePage() {
               className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in-up"
               style={{ animationDelay: "0.2s" }}
             >
-              Discover our most popular and premium quality puffs and vapes
+              Discover our most popular products for adult smokers
             </p>
           </div>
 
@@ -181,8 +178,13 @@ export default async function HomePage() {
                 >
                   <div className="aspect-square relative overflow-hidden image-container">
                     <Image
-                      src={product.image || "/placeholder.svg?height=300&width=300"}
-                      alt={product.name}
+                      src={
+                        product.gallery?.find((img) => img.isPrimary)?.url ||
+                        product.gallery?.[0]?.url ||
+                        "/placeholder.svg?height=300&width=300" ||
+                        "/placeholder.svg"
+                      }
+                      alt={product.gallery?.find((img) => img.isPrimary)?.alt || product.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -240,9 +242,9 @@ export default async function HomePage() {
         ></div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 animate-fade-in-up">Stay Updated</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 animate-fade-in-up">Stay Informed</h2>
           <p className="text-xl text-cream/90 mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            Get the latest updates on new products and exclusive offers
+            Get updates on harm reduction resources and responsible alternatives
           </p>
           <div
             className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto animate-fade-in-up"
@@ -260,76 +262,83 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Enhanced Footer */}
+      {/* Enhanced Footer with Responsible Messaging */}
       <footer className="bg-dark-blue text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-medium-blue/20 to-light-blue/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <div className="animate-fade-in-up">
-              <div className="flex items-center space-x-2 mb-6">
-                <div className="w-10 h-10 gradient-secondary rounded-full flex items-center justify-center animate-glow">
-                  <Zap className="text-dark-blue w-5 h-5" />
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="relative w-10 h-10 animate-glow">
+                  <Image src="/puff-planete-logo.png" alt="Puff Planete Logo" fill className="object-contain" />
                 </div>
-                <span className="text-2xl font-bold text-cream">PuffShop</span>
+                <span className="text-2xl font-bold text-cream">Puff Planete</span>
               </div>
-              <p className="text-light-blue leading-relaxed">
-                Your trusted source for premium puffs and vapes with guaranteed quality and lightning-fast delivery.
+              <p className="text-light-blue leading-relaxed mb-4">
+                Supporting adult smokers on their journey to quit with responsible alternatives and honest information.
               </p>
             </div>
 
-            {[
-              {
-                title: "Quick Links",
-                links: [
+            <div className="animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+              <h3 className="text-lg font-semibold mb-6 text-cream">Quick Links</h3>
+              <ul className="space-y-3">
+                {[
                   { href: "/products", label: "Products" },
-                  { href: "/about", label: "About Us" },
-                  { href: "/contact", label: "Contact" },
-                  { href: "/faq", label: "FAQ" },
-                ],
-              },
-              {
-                title: "Customer Service",
-                links: [
-                  { href: "/shipping", label: "Shipping Info" },
-                  { href: "/returns", label: "Returns" },
-                  { href: "/support", label: "Support" },
-                  { href: "/track", label: "Track Order" },
-                ],
-              },
-              {
-                title: "Contact Info",
-                links: [
-                  { href: "mailto:support@puffshop.com", label: "support@puffshop.com" },
-                  { href: "tel:+15551234567", label: "(555) 123-4567" },
-                  { href: "#", label: "Mon-Fri 9AM-6PM" },
-                  { href: "#", label: "24/7 Online Support" },
-                ],
-              },
-            ].map((section, index) => (
-              <div key={index} className="animate-fade-in-up" style={{ animationDelay: `${(index + 1) * 0.1}s` }}>
-                <h3 className="text-lg font-semibold mb-6 text-cream">{section.title}</h3>
-                <ul className="space-y-3">
-                  {section.links.map((link, linkIndex) => (
-                    <li key={linkIndex}>
-                      <Link
-                        href={link.href}
-                        className="text-light-blue hover:text-cream transition-colors duration-300 hover:translate-x-1 inline-block"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
+                  { href: "/resources", label: "Quit Resources" },
+                ].map((link, linkIndex) => (
+                  <li key={linkIndex}>
+                    <Link
+                      href={link.href}
+                      className="text-light-blue hover:text-cream transition-colors duration-300 hover:translate-x-1 inline-block"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Responsible Use Information */}
+            <div className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+              <h3 className="text-lg font-semibold mb-6 text-cream flex items-center">
+                <AlertTriangle className="w-5 h-5 mr-2" />
+                Health & Responsibility
+              </h3>
+              <div className="bg-orange-900/30 border border-orange-700/50 rounded-xl p-4 mb-4">
+                <p className="text-orange-200 text-sm leading-relaxed mb-3">
+                  <strong>⚠️ Important:</strong> This platform is designed for adult smokers seeking safer alternatives
+                  as part of their journey to quit smoking.
+                </p>
+                <p className="text-orange-200 text-sm leading-relaxed mb-3">
+                  Vaping products are harmful and should only be used as a last resort under medical guidance. They are
+                  not risk-free and should never be used by non-smokers, youth, or pregnant individuals.
+                </p>
+                <p className="text-orange-200 text-sm leading-relaxed">
+                  <strong>📿 Islamic Perspective:</strong> Your health is a trust (Amanah) from Allah. Protecting it is
+                  not only a choice — it is a responsibility.
+                </p>
+              </div>
+              <div className="text-xs text-light-blue/80">
+                <p className="mb-2">We also provide resources on:</p>
+                <ul className="space-y-1 ml-4">
+                  <li>• Medically approved alternatives</li>
+                  <li>• Behavioral support for quitting</li>
+                  <li>• Health risks education</li>
+                  <li>• Spiritual guidance for recovery</li>
                 </ul>
               </div>
-            ))}
+            </div>
           </div>
 
           <div
             className="border-t border-medium-blue/30 pt-8 text-center animate-fade-in-up"
-            style={{ animationDelay: "0.6s" }}
+            style={{ animationDelay: "0.4s" }}
           >
-            <p className="text-light-blue">
-              &copy; 2024 PuffShop. All rights reserved. Made with ❤️ for vaping enthusiasts.
+            <p className="text-light-blue mb-2">
+              &copy; 2024 Puff Planete. All rights reserved. Supporting responsible choices for adult smokers.
+            </p>
+            <p className="text-xs text-light-blue/70">
+              This platform promotes harm reduction, not recreational vaping. Age verification required.
             </p>
           </div>
         </div>

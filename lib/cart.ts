@@ -5,6 +5,13 @@ export interface CartItem {
   image: string
   quantity: number
   stock: number
+  selectedVariation?: {
+    id?: string
+    name: string
+    value: string
+    price?: number
+  }
+  variationId?: string
 }
 
 export function getCart(): CartItem[] {
@@ -18,29 +25,59 @@ export function saveCart(cart: CartItem[]): void {
   localStorage.setItem("cart", JSON.stringify(cart))
 }
 
-export function addToCart(product: Omit<CartItem, "quantity">): void {
+export function addToCart(
+  product: Omit<CartItem, "quantity">,
+  selectedVariation?: { id?: string; name: string; value: string; price?: number },
+): void {
   const cart = getCart()
-  const existingItem = cart.find((item) => item.id === product.id)
+
+  // Create unique identifier for product + variation combination
+  const cartItemKey = selectedVariation
+    ? `${product.id}-${selectedVariation.id || selectedVariation.value}`
+    : product.id
+
+  const existingItem = cart.find((item) => {
+    const itemKey = item.selectedVariation
+      ? `${item.id}-${item.selectedVariation.id || item.selectedVariation.value}`
+      : item.id
+    return itemKey === cartItemKey
+  })
 
   if (existingItem) {
     if (existingItem.quantity < product.stock) {
       existingItem.quantity += 1
     }
   } else {
-    cart.push({ ...product, quantity: 1 })
+    const newItem: CartItem = {
+      ...product,
+      quantity: 1,
+      selectedVariation,
+      variationId: selectedVariation?.id,
+    }
+    cart.push(newItem)
   }
 
   saveCart(cart)
 }
 
 export function removeFromCart(productId: string): void {
-  const cart = getCart().filter((item) => item.id !== productId)
+  const cart = getCart().filter((item) => {
+    const itemKey = item.selectedVariation
+      ? `${item.id}-${item.selectedVariation.id || item.selectedVariation.value}`
+      : item.id
+    return itemKey !== productId
+  })
   saveCart(cart)
 }
 
 export function updateCartQuantity(productId: string, quantity: number): void {
   const cart = getCart()
-  const item = cart.find((item) => item.id === productId)
+  const item = cart.find((item) => {
+    const itemKey = item.selectedVariation
+      ? `${item.id}-${item.selectedVariation.id || item.selectedVariation.value}`
+      : item.id
+    return itemKey === productId
+  })
 
   if (item) {
     if (quantity <= 0) {

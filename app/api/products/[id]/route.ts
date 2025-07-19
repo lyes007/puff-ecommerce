@@ -6,6 +6,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const product = await prisma.product.findUnique({
       where: { id: params.id },
       include: {
+        gallery: {
+          orderBy: { order: "asc" },
+        },
+        variants: {
+          where: { isActive: true },
+          orderBy: { order: "asc" },
+        },
         reviews: {
           orderBy: { createdAt: "desc" },
           take: 10,
@@ -27,7 +34,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
-    const { name, description, price, image, category, stock, featured } = body
+    // Removed 'image' from destructuring
+    const { name, description, price, category, stock, featured } = body
 
     const product = await prisma.product.update({
       where: { id: params.id },
@@ -35,10 +43,18 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         name,
         description,
         price: Number.parseFloat(price),
-        image,
+        // Removed 'image' field
         category,
         stock: Number.parseInt(stock),
         featured: featured || false,
+      },
+      include: {
+        gallery: {
+          orderBy: { order: "asc" },
+        },
+        variants: {
+          orderBy: { order: "asc" },
+        },
       },
     })
 

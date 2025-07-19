@@ -1,214 +1,223 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import Image from "next/image"
 import Link from "next/link"
-import { Search, Star, Grid, List, Zap, Heart } from "lucide-react"
+import Image from "next/image"
+import { Star, Truck, Shield, Clock, Zap, Award, Users, Heart, AlertTriangle } from "lucide-react"
 import Navigation from "@/components/navigation"
+import { prisma } from "@/lib/db"
 
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  image: string
-  category: string
-  stock: number
+async function getFeaturedProducts() {
+  try {
+    return await prisma.product.findMany({
+      where: { featured: true },
+      include: {
+        gallery: {
+          orderBy: { order: "asc" },
+        },
+      },
+      take: 8,
+      orderBy: { createdAt: "desc" },
+    })
+  } catch (error) {
+    console.error("Error fetching featured products:", error)
+    return []
+  }
 }
 
-export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [sortBy, setSortBy] = useState("name")
-  const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-
-  useEffect(() => {
-    fetchProducts()
-  }, [])
-
-  useEffect(() => {
-    filterAndSortProducts()
-  }, [products, searchTerm, selectedCategory, sortBy])
-
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch("/api/products")
-      const data = await response.json()
-      setProducts(data)
-    } catch (error) {
-      console.error("Error fetching products:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filterAndSortProducts = () => {
-    const filtered = products.filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (selectedCategory === "all" || product.category === selectedCategory),
-    )
-
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "price-low":
-          return a.price - b.price
-        case "price-high":
-          return b.price - a.price
-        case "name":
-          return a.name.localeCompare(b.name)
-        default:
-          return 0
-      }
-    })
-
-    setFilteredProducts(filtered)
-  }
-
-  const categories = ["all", ...Array.from(new Set(products.map((p) => p.category)))]
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-cream via-light-blue/20 to-medium-blue/20">
-        <Navigation />
-        <div className="flex justify-center items-center h-64">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-light-blue border-t-dark-blue rounded-full animate-spin"></div>
-            <div
-              className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-medium-blue rounded-full animate-spin"
-              style={{ animationDirection: "reverse", animationDuration: "0.8s" }}
-            ></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+export default async function HomePage() {
+  const featuredProducts = await getFeaturedProducts()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-light-blue/20 to-medium-blue/20">
       <Navigation />
 
-      {/* Hero Section */}
-      <section className="relative py-20 gradient-primary overflow-hidden">
+      {/* Hero Section with Enhanced Animations */}
+      <section className="relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 gradient-primary"></div>
         <div className="absolute inset-0 bg-dark-blue/20"></div>
-        <div className="absolute top-10 left-10 w-20 h-20 bg-cream/10 rounded-full animate-float"></div>
+
+        {/* Floating Elements */}
+        <div className="absolute top-20 left-10 w-20 h-20 bg-cream/20 rounded-full animate-float"></div>
         <div
-          className="absolute bottom-10 right-10 w-16 h-16 bg-light-blue/20 rounded-full animate-float"
+          className="absolute top-40 right-20 w-16 h-16 bg-light-blue/30 rounded-full animate-float"
           style={{ animationDelay: "1s" }}
         ></div>
+        <div
+          className="absolute bottom-20 left-1/4 w-12 h-12 bg-medium-blue/30 rounded-full animate-float"
+          style={{ animationDelay: "2s" }}
+        ></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-slide-in-top">
-            Our <span className="text-cream">Products</span>
-          </h1>
-          <p
-            className="text-xl text-light-blue/90 max-w-2xl mx-auto animate-fade-in-up"
-            style={{ animationDelay: "0.3s" }}
-          >
-            Discover our premium collection of puffs and vapes
-          </p>
-        </div>
-      </section>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+          <div className="text-center">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 animate-slide-in-top">
+              <span className="block">Welcome to</span>
+              <span className="block text-cream animate-pulse-custom">Puff World</span>
+            </h1>
+            <p
+              className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto animate-fade-in-up"
+              style={{ animationDelay: "0.3s" }}
+            >
+              Supporting adult smokers on their journey to quit with safer alternatives
+            </p>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Enhanced Search and Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 animate-fade-in-up border border-light-blue/20">
-          <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-medium-blue w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search for amazing products..."
-                className="w-full pl-12 pr-4 py-3 border border-light-blue rounded-xl focus:ring-4 focus:ring-medium-blue/20 focus:border-medium-blue transition-all duration-300"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+            {/* Responsible Use Warning */}
+            <div
+              className="bg-orange-500/20 border border-orange-300 rounded-2xl p-6 mb-8 max-w-4xl mx-auto animate-fade-in-up"
+              style={{ animationDelay: "0.5s" }}
+            >
+              <div className="flex items-center justify-center mb-4">
+                <AlertTriangle className="w-6 h-6 text-orange-300 mr-2" />
+                <span className="text-orange-100 font-semibold">Important Health Notice</span>
+              </div>
+              <p className="text-orange-100 text-sm leading-relaxed">
+                This platform is designed for adult smokers seeking safer alternatives as part of their journey to quit
+                smoking. Vaping products are harmful and should only be used as a last resort under professional
+                guidance.
+              </p>
             </div>
 
-            <div className="flex gap-4 items-center">
-              <select
-                className="px-4 py-3 border border-light-blue rounded-xl focus:ring-4 focus:ring-medium-blue/20 focus:border-medium-blue transition-all duration-300 bg-white text-dark-blue"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+            <div
+              className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
+              style={{ animationDelay: "0.8s" }}
+            >
+              <Link
+                href="/products"
+                className="inline-flex items-center px-8 py-4 bg-cream text-dark-blue rounded-full font-bold text-lg hover:bg-white transition-all duration-300 hover-lift hover-glow group"
               >
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category === "all" ? "All Categories" : category}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                className="px-4 py-3 border border-light-blue rounded-xl focus:ring-4 focus:ring-medium-blue/20 focus:border-medium-blue transition-all duration-300 bg-white text-dark-blue"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                <Zap className="w-5 h-5 mr-2 group-hover:animate-bounce-custom" />
+                View Products
+              </Link>
+              <Link
+                href="/about"
+                className="inline-flex items-center px-8 py-4 border-2 border-cream text-cream rounded-full font-bold text-lg hover:bg-cream hover:text-dark-blue transition-all duration-300 hover-lift"
               >
-                <option value="name">Sort by Name</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-              </select>
-
-              <div className="flex border border-light-blue rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-3 transition-all duration-300 ${viewMode === "grid" ? "bg-medium-blue text-white" : "text-dark-blue hover:bg-light-blue/30"}`}
-                >
-                  <Grid className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-3 transition-all duration-300 ${viewMode === "list" ? "bg-medium-blue text-white" : "text-dark-blue hover:bg-light-blue/30"}`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
+                Learn More
+              </Link>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Products Grid/List */}
-        {filteredProducts.length > 0 ? (
-          <div
-            className={
-              viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" : "space-y-6"
-            }
-          >
-            {filteredProducts.map((product, index) =>
-              viewMode === "grid" ? (
+      {/* Stats Section */}
+      <section className="py-16 bg-cream relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-light-blue/10 to-medium-blue/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { icon: Users, number: "10K+", label: "Adult Users Supported" },
+              { icon: Award, number: "500+", label: "Products Available" },
+              { icon: Truck, number: "24/7", label: "Fast Delivery" },
+              { icon: Heart, number: "99%", label: "Satisfaction Rate" },
+            ].map((stat, index) => (
+              <div key={index} className="text-center stagger-item">
+                <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-custom">
+                  <stat.icon className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-3xl font-bold text-dark-blue mb-2">{stat.number}</div>
+                <div className="text-gray-600 font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section with Enhanced Design */}
+      <section className="py-20 bg-gradient-to-br from-cream to-light-blue/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-dark-blue mb-6 animate-fade-in-up">
+              Why Choose <span className="text-medium-blue">Puff World</span>?
+            </h2>
+            <p
+              className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
+              Supporting responsible choices for adult smokers seeking alternatives
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Truck,
+                title: "Lightning Fast Delivery",
+                description: "Get your orders delivered in record time with our express shipping network",
+                bgColor: "bg-light-blue",
+                delay: "0s",
+              },
+              {
+                icon: Shield,
+                title: "Quality Guaranteed",
+                description: "Premium products with rigorous quality testing and satisfaction guarantee",
+                bgColor: "bg-medium-blue",
+                delay: "0.2s",
+              },
+              {
+                icon: Clock,
+                title: "Pay on Delivery",
+                description: "Convenient payment when you receive your order - no upfront payment needed",
+                bgColor: "bg-dark-blue",
+                delay: "0.4s",
+              },
+            ].map((feature, index) => (
+              <div
+                key={index}
+                className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 hover-lift animate-fade-in-up border border-light-blue/20 stagger-item"
+                style={{ animationDelay: feature.delay }}
+              >
+                <div
+                  className={`w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:animate-bounce-custom transition-all duration-300`}
+                >
+                  <feature.icon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-dark-blue mb-4 group-hover:text-medium-blue transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products with Enhanced Cards */}
+      <section className="py-20 bg-gradient-to-br from-light-blue/20 to-cream">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-dark-blue mb-6 animate-fade-in-up">
+              Featured <span className="text-medium-blue">Products</span>
+            </h2>
+            <p
+              className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
+              Discover our most popular products for adult smokers
+            </p>
+          </div>
+
+          {featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredProducts.map((product, index) => (
                 <div
                   key={product.id}
                   className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 hover-lift stagger-item border border-light-blue/20"
                 >
                   <div className="aspect-square relative overflow-hidden image-container">
                     <Image
-                      src={product.image || "/placeholder.svg?height=300&width=300"}
-                      alt={product.name}
+                      src={
+                        product.gallery?.find((img) => img.isPrimary)?.url ||
+                        product.gallery?.[0]?.url ||
+                        "/placeholder.svg?height=300&width=300" ||
+                        "/placeholder.svg"
+                      }
+                      alt={product.gallery?.find((img) => img.isPrimary)?.alt || product.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-dark-blue/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                    {/* Stock Badge */}
-                    {product.stock < 10 && product.stock > 0 && (
-                      <div className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse-custom">
-                        Low Stock
-                      </div>
-                    )}
-                    {product.stock === 0 && (
-                      <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-red-700 text-white px-3 py-1 rounded-full text-sm font-bold">
-                        Out of Stock
-                      </div>
-                    )}
-
-                    {/* Wishlist Button */}
-                    <button className="absolute top-4 right-4 w-10 h-10 bg-cream/90 rounded-full flex items-center justify-center text-dark-blue hover:text-red-500 hover:bg-cream transition-all duration-300 hover-scale">
-                      <Heart className="w-5 h-5" />
-                    </button>
+                    <div className="absolute top-4 right-4 bg-medium-blue text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse-custom">
+                      Featured
+                    </div>
                   </div>
-
                   <div className="p-6">
                     <h3 className="font-bold text-xl mb-3 text-dark-blue group-hover:text-medium-blue transition-colors duration-300 line-clamp-2">
                       {product.name}
@@ -221,7 +230,6 @@ export default function ProductsPage() {
                         <span className="text-sm text-gray-600 ml-1">4.8</span>
                       </div>
                     </div>
-                    <p className="text-sm text-medium-blue mb-4">Stock: {product.stock}</p>
                     <Link
                       href={`/products/${product.id}`}
                       className="w-full gradient-primary text-white py-3 px-6 rounded-xl hover:bg-dark-blue transition-all duration-300 text-center block font-semibold hover-glow group-hover:animate-pulse-custom"
@@ -230,68 +238,143 @@ export default function ProductsPage() {
                     </Link>
                   </div>
                 </div>
-              ) : (
-                <div
-                  key={product.id}
-                  className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 hover-lift animate-fade-in-left border border-light-blue/20"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="flex flex-col md:flex-row">
-                    <div className="md:w-1/3 aspect-square md:aspect-auto relative overflow-hidden image-container">
-                      <Image
-                        src={product.image || "/placeholder.svg?height=300&width=300"}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="md:w-2/3 p-6 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-bold text-2xl mb-3 text-dark-blue group-hover:text-medium-blue transition-colors duration-300">
-                          {product.name}
-                        </h3>
-                        <p className="text-gray-600 mb-4 leading-relaxed">{product.description}</p>
-                        <div className="flex items-center gap-4 mb-4">
-                          <span className="text-3xl font-bold text-dark-blue">${product.price.toFixed(2)}</span>
-                          <div className="flex items-center">
-                            <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                            <span className="text-gray-600 ml-1">4.8 (124 reviews)</span>
-                          </div>
-                        </div>
-                        <p className="text-medium-blue mb-4">Stock: {product.stock} available</p>
-                      </div>
-                      <Link
-                        href={`/products/${product.id}`}
-                        className="inline-flex items-center justify-center gradient-primary text-white py-3 px-8 rounded-xl hover:bg-dark-blue transition-all duration-300 font-semibold hover-glow group-hover:animate-pulse-custom"
-                      >
-                        <Zap className="w-5 h-5 mr-2" />
-                        View Details
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ),
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-16 animate-fade-in-up">
-            <div className="w-24 h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-custom">
-              <Search className="w-12 h-12 text-white" />
+              ))}
             </div>
-            <h3 className="text-2xl font-bold text-dark-blue mb-4">No products found</h3>
-            <p className="text-gray-600 text-lg mb-8">Try adjusting your search or filter criteria</p>
-            <button
-              onClick={() => {
-                setSearchTerm("")
-                setSelectedCategory("all")
-              }}
-              className="gradient-primary text-white px-8 py-4 rounded-xl hover:bg-dark-blue transition-all duration-300 font-semibold hover-lift"
-            >
-              Clear Filters
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-custom">
+                <Zap className="w-12 h-12 text-white" />
+              </div>
+              <p className="text-gray-600 text-xl mb-8">No featured products available at the moment.</p>
+              <Link
+                href="/products"
+                className="inline-block gradient-primary text-white px-8 py-4 rounded-xl hover:bg-dark-blue transition-all duration-300 font-semibold hover-lift"
+              >
+                Browse All Products
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-20 gradient-primary relative overflow-hidden">
+        <div className="absolute inset-0 bg-dark-blue/20"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-cream/10 rounded-full animate-float"></div>
+        <div
+          className="absolute bottom-10 right-10 w-24 h-24 bg-light-blue/20 rounded-full animate-float"
+          style={{ animationDelay: "1s" }}
+        ></div>
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 animate-fade-in-up">Stay Informed</h2>
+          <p className="text-xl text-cream/90 mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            Get updates on harm reduction resources and responsible alternatives
+          </p>
+          <div
+            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto animate-fade-in-up"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-6 py-4 rounded-xl border-0 focus:ring-4 focus:ring-cream/30 text-gray-900 placeholder-gray-500"
+            />
+            <button className="px-8 py-4 bg-cream text-dark-blue rounded-xl font-bold hover:bg-white transition-all duration-300 hover-lift">
+              Subscribe
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      </section>
+
+      {/* Enhanced Footer with Responsible Messaging */}
+      <footer className="bg-dark-blue text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-medium-blue/20 to-light-blue/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div className="animate-fade-in-up">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="relative w-10 h-10 animate-glow">
+                  <Image
+                    src="/placeholder.svg?height=40&width=40&text=PW"
+                    alt="Puff World Logo"
+                    fill
+                    className="object-contain rounded-full"
+                  />
+                </div>
+                <span className="text-2xl font-bold text-cream">Puff World</span>
+              </div>
+              <p className="text-light-blue leading-relaxed mb-4">
+                Supporting adult smokers on their journey to quit with responsible alternatives and honest information.
+              </p>
+            </div>
+
+            <div className="animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+              <h3 className="text-lg font-semibold mb-6 text-cream">Quick Links</h3>
+              <ul className="space-y-3">
+                {[
+                  { href: "/products", label: "Products" },
+                  { href: "/about", label: "About Us" },
+                  { href: "/contact", label: "Contact" },
+                  { href: "/resources", label: "Quit Resources" },
+                ].map((link, linkIndex) => (
+                  <li key={linkIndex}>
+                    <Link
+                      href={link.href}
+                      className="text-light-blue hover:text-cream transition-colors duration-300 hover:translate-x-1 inline-block"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Responsible Use Information */}
+            <div className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+              <h3 className="text-lg font-semibold mb-6 text-cream flex items-center">
+                <AlertTriangle className="w-5 h-5 mr-2" />
+                Health & Responsibility
+              </h3>
+              <div className="bg-orange-900/30 border border-orange-700/50 rounded-xl p-4 mb-4">
+                <p className="text-orange-200 text-sm leading-relaxed mb-3">
+                  <strong>⚠️ Important:</strong> This platform is designed for adult smokers seeking safer alternatives
+                  as part of their journey to quit smoking.
+                </p>
+                <p className="text-orange-200 text-sm leading-relaxed mb-3">
+                  Vaping products are harmful and should only be used as a last resort under medical guidance. They are
+                  not risk-free and should never be used by non-smokers, youth, or pregnant individuals.
+                </p>
+                <p className="text-orange-200 text-sm leading-relaxed">
+                  <strong>📿 Islamic Perspective:</strong> Your health is a trust (Amanah) from Allah. Protecting it is
+                  not only a choice — it is a responsibility.
+                </p>
+              </div>
+              <div className="text-xs text-light-blue/80">
+                <p className="mb-2">We also provide resources on:</p>
+                <ul className="space-y-1 ml-4">
+                  <li>• Medically approved alternatives</li>
+                  <li>• Behavioral support for quitting</li>
+                  <li>• Health risks education</li>
+                  <li>• Spiritual guidance for recovery</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="border-t border-medium-blue/30 pt-8 text-center animate-fade-in-up"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <p className="text-light-blue mb-2">
+              &copy; 2024 Puff World. All rights reserved. Supporting responsible choices for adult smokers.
+            </p>
+            <p className="text-xs text-light-blue/70">
+              This platform promotes harm reduction, not recreational vaping. Age verification required.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

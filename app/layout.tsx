@@ -7,9 +7,10 @@ import { Toaster } from "react-hot-toast"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PuffShop - Premium Vapes & Puffs",
-  description: "Discover premium quality puffs and vapes with fast delivery and pay on delivery option.",
-  keywords: "puffs, vapes, e-cigarettes, premium, quality",
+  title: "Puff Planete - Responsible Alternatives for Adult Smokers",
+  description:
+    "Supporting adult smokers on their journey to quit with safer alternatives. Responsible harm reduction platform with honest information and resources.",
+  keywords: "puffs, vapes, smoking alternatives, harm reduction, quit smoking, adult smokers",
 }
 
 export default function RootLayout({

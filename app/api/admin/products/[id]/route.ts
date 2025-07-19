@@ -6,7 +6,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const product = await prisma.product.findUnique({
       where: { id: params.id },
       include: {
-        variants: true,
+        gallery: {
+          orderBy: { order: "asc" },
+        },
+        variants: {
+          orderBy: { order: "asc" },
+        },
         stockLogs: {
           take: 10,
           orderBy: { createdAt: "desc" },
@@ -29,7 +34,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
-    const { name, description, price, image, category, stock, lowStockThreshold, featured, isActive } = body
+    const { name, description, price, category, stock, lowStockThreshold, featured, isActive, gallery, variants } = body
 
     // Get current stock for logging
     const currentProduct = await prisma.product.findUnique({
@@ -37,19 +42,65 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       select: { stock: true },
     })
 
-    const product = await prisma.product.update({
-      where: { id: params.id },
-      data: {
-        name,
-        description,
-        price: Number.parseFloat(price),
-        image,
-        category,
-        stock: Number.parseInt(stock),
-        lowStockThreshold: Number.parseInt(lowStockThreshold) || 10,
-        featured: featured || false,
-        isActive: isActive !== false,
-      },
+    // Update product with transaction
+    const product = await prisma.$transaction(async (tx) => {
+      // Update the product
+      const updatedProduct = await tx.product.update({
+        where: { id: params.id },
+        data: {
+          name,
+          description,
+          price: Number.parseFloat(price),
+          category,
+          stock: Number.parseInt(stock),
+          lowStockThreshold: Number.parseInt(lowStockThreshold) || 10,
+          featured: featured || false,
+          isActive: isActive !== false,
+        },
+      })
+
+      // Update gallery - delete existing and create new ones
+      if (gallery) {
+        await tx.productImage.deleteMany({
+          where: { productId: params.id },
+        })
+
+        if (gallery.length > 0) {
+          await tx.productImage.createMany({
+            data: gallery.map((image: any, index: number) => ({
+              productId: params.id,
+              url: image.url,
+              alt: image.alt || "",
+              isPrimary: image.isPrimary || index === 0,
+              order: image.order || index,
+            })),
+          })
+        }
+      }
+
+      // Update variants - delete existing and create new ones
+      if (variants) {
+        await tx.productVariant.deleteMany({
+          where: { productId: params.id },
+        })
+
+        if (variants.length > 0) {
+          await tx.productVariant.createMany({
+            data: variants.map((variant: any, index: number) => ({
+              productId: params.id,
+              name: variant.name,
+              value: variant.value,
+              price: variant.price ? Number.parseFloat(variant.price) : null,
+              stock: Number.parseInt(variant.stock) || 0,
+              sku: variant.sku || null,
+              isActive: variant.isActive !== false,
+              order: variant.order || index,
+            })),
+          })
+        }
+      }
+
+      return updatedProduct
     })
 
     // Log stock change if stock was updated
@@ -64,7 +115,16 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       })
     }
 
-    return NextResponse.json(product)
+    // Fetch the complete updated product
+    const completeProduct = await prisma.product.findUnique({
+      where: { id: params.id },
+      include: {
+        gallery: { orderBy: { order: "asc" } },
+        variants: { orderBy: { order: "asc" } },
+      },
+    })
+
+    return NextResponse.json(completeProduct)
   } catch (error) {
     console.error("Error updating product:", error)
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 })
@@ -82,6 +142,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return NextResponse.json({ error: "Cannot delete product with existing orders" }, { status: 400 })
     }
 
+    // Delete product and all related data (cascade will handle gallery and variants)
     await prisma.product.delete({
       where: { id: params.id },
     })

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ShoppingCart, Menu, X, User, Search, Sparkles } from "lucide-react"
+import Image from "next/image"
+import { ShoppingCart, Menu, X, Search } from "lucide-react"
 import { getCart } from "@/lib/cart"
 
 export default function Navigation() {
@@ -55,11 +56,11 @@ export default function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center animate-glow group-hover:animate-pulse-custom transition-all duration-300">
-                <Sparkles className="text-white w-5 h-5" />
+            <Link href="/" className="flex items-center space-x-3 group">
+              <div className="relative w-10 h-10 animate-glow group-hover:animate-pulse-custom transition-all duration-300">
+                <Image src="/puff-planete-logo.png" alt="Puff Planete Logo" fill className="object-contain" />
               </div>
-              <span className="text-2xl font-bold text-dark-blue">PuffShop</span>
+              <span className="text-2xl font-bold text-dark-blue">Puff Planete</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -67,8 +68,6 @@ export default function Navigation() {
               {[
                 { href: "/", label: "Home" },
                 { href: "/products", label: "Products" },
-                { href: "/about", label: "About" },
-                { href: "/contact", label: "Contact" },
               ].map((item, index) => (
                 <Link
                   key={item.href}
@@ -87,13 +86,6 @@ export default function Navigation() {
               <button className="p-2 text-gray-700 hover:text-dark-blue transition-all duration-300 hover:bg-light-blue/30 rounded-full hover-scale">
                 <Search className="w-5 h-5" />
               </button>
-
-              <Link
-                href="/account"
-                className="p-2 text-gray-700 hover:text-dark-blue transition-all duration-300 hover:bg-light-blue/30 rounded-full hover-scale"
-              >
-                <User className="w-5 h-5" />
-              </Link>
 
               <Link
                 href="/cart"
@@ -128,8 +120,6 @@ export default function Navigation() {
                 {[
                   { href: "/", label: "Home" },
                   { href: "/products", label: "Products" },
-                  { href: "/about", label: "About" },
-                  { href: "/contact", label: "Contact" },
                 ].map((item, index) => (
                   <Link
                     key={item.href}

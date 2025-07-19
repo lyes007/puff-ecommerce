@@ -16,14 +16,20 @@ export default function CartPage() {
     setLoading(false)
   }, [])
 
-  const handleQuantityChange = (productId: string, newQuantity: number) => {
-    updateCartQuantity(productId, newQuantity)
+  const getItemKey = (item: CartItem) => {
+    return item.selectedVariation ? `${item.id}-${item.selectedVariation.id || item.selectedVariation.value}` : item.id
+  }
+
+  const handleQuantityChange = (item: CartItem, newQuantity: number) => {
+    const itemKey = getItemKey(item)
+    updateCartQuantity(itemKey, newQuantity)
     setCart(getCart())
     window.dispatchEvent(new Event("cartUpdated"))
   }
 
-  const handleRemoveItem = (productId: string) => {
-    removeFromCart(productId)
+  const handleRemoveItem = (item: CartItem) => {
+    const itemKey = getItemKey(item)
+    removeFromCart(itemKey)
     setCart(getCart())
     window.dispatchEvent(new Event("cartUpdated"))
   }
@@ -65,8 +71,11 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                {cart.map((item) => (
-                  <div key={item.id} className="flex items-center p-6 border-b border-gray-200 last:border-b-0">
+                {cart.map((item, index) => (
+                  <div
+                    key={getItemKey(item)}
+                    className="flex items-center p-6 border-b border-gray-200 last:border-b-0"
+                  >
                     <div className="w-20 h-20 relative flex-shrink-0 image-container">
                       <Image
                         src={item.image || "/placeholder.svg?height=80&width=80"}
@@ -78,12 +87,20 @@ export default function CartPage() {
 
                     <div className="flex-1 ml-4">
                       <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                      {item.selectedVariation && (
+                        <p className="text-sm text-medium-blue font-medium">
+                          {item.selectedVariation.name}: {item.selectedVariation.value}
+                          {item.selectedVariation.price && item.selectedVariation.price > 0 && (
+                            <span className="text-gray-500 ml-1">(+${item.selectedVariation.price.toFixed(2)})</span>
+                          )}
+                        </p>
+                      )}
                       <p className="text-purple-600 font-bold">${item.price.toFixed(2)}</p>
                     </div>
 
                     <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                        onClick={() => handleQuantityChange(item, item.quantity - 1)}
                         className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                         disabled={item.quantity <= 1}
                       >
@@ -93,7 +110,7 @@ export default function CartPage() {
                       <span className="w-8 text-center font-semibold">{item.quantity}</span>
 
                       <button
-                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                        onClick={() => handleQuantityChange(item, item.quantity + 1)}
                         className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                         disabled={item.quantity >= item.stock}
                       >
@@ -101,7 +118,7 @@ export default function CartPage() {
                       </button>
 
                       <button
-                        onClick={() => handleRemoveItem(item.id)}
+                        onClick={() => handleRemoveItem(item)}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors ml-4"
                       >
                         <Trash2 className="w-4 h-4" />

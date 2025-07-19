@@ -4,6 +4,15 @@ import { prisma } from "@/lib/db"
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
+      include: {
+        gallery: {
+          orderBy: { order: "asc" },
+        },
+        variants: {
+          where: { isActive: true },
+          orderBy: { order: "asc" },
+        },
+      },
       orderBy: { createdAt: "desc" },
     })
     return NextResponse.json(products)
@@ -16,17 +25,26 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, description, price, image, category, stock, featured } = body
+    // Removed 'image' from destructuring
+    const { name, description, price, category, stock, featured } = body
 
     const product = await prisma.product.create({
       data: {
         name,
         description,
         price: Number.parseFloat(price),
-        image,
+        // Removed 'image' field
         category,
         stock: Number.parseInt(stock),
         featured: featured || false,
+      },
+      include: {
+        gallery: {
+          orderBy: { order: "asc" },
+        },
+        variants: {
+          orderBy: { order: "asc" },
+        },
       },
     })
 
