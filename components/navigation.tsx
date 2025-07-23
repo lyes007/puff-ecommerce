@@ -67,7 +67,6 @@ export default function Navigation() {
             <div className="hidden md:flex items-center space-x-8">
               {[
                 { href: "/", label: "Home" },
-                { href: "/products", label: "Products" },
               ].map((item, index) => (
                 <Link
                   key={item.href}
@@ -119,7 +118,6 @@ export default function Navigation() {
               <div className="flex flex-col space-y-4">
                 {[
                   { href: "/", label: "Home" },
-                  { href: "/products", label: "Products" },
                 ].map((item, index) => (
                   <Link
                     key={item.href}

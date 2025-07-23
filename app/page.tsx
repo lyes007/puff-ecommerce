@@ -199,7 +199,7 @@ export default async function HomePage() {
                     </h3>
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-3xl font-bold text-dark-blue">${product.price.toFixed(2)}</span>
+                      <span className="text-3xl font-bold text-dark-blue">TND {product.price.toFixed(2)}</span>
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="text-sm text-gray-600 ml-1">4.8</span>

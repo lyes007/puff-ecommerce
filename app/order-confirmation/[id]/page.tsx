@@ -102,7 +102,7 @@ export default function OrderConfirmationPage() {
                   </span>
                 </p>
                 <p>
-                  <span className="font-medium">Total:</span> ${order.total.toFixed(2)}
+                  <span className="font-medium">Total:</span> TND {order.total.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -143,7 +143,7 @@ export default function OrderConfirmationPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-semibold text-gray-900">TND {(item.price * item.quantity).toFixed(2)}</p>
                 </div>
               </div>
             ))}

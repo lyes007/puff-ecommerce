@@ -721,7 +721,7 @@ export default function AdminDashboard() {
               {[
                 {
                   title: "Total Sales",
-                  value: `$${analytics.totalSales.toFixed(2)}`,
+                  value: `TND ${analytics.totalSales.toFixed(2)}`,
                   icon: DollarSign,
                   color: "bg-green-500",
                   change: "+12.5%",
@@ -891,7 +891,7 @@ export default function AdminDashboard() {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                         <div>
-                          <label className="block text-sm font-medium text-dark-blue mb-2">Price ($)</label>
+                          <label className="block text-sm font-medium text-dark-blue mb-2">Price (TND)</label>
                           <input
                             type="number"
                             step="0.01"
@@ -1151,7 +1151,7 @@ export default function AdminDashboard() {
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Price Adjustment ($)
+                                Price Adjustment (TND)
                               </label>
                               <input
                                 type="number"
@@ -1257,7 +1257,9 @@ export default function AdminDashboard() {
                                   <div>
                                     <span className="text-sm text-gray-500">Price/Stock</span>
                                     <p className="font-medium text-dark-blue">
-                                      {variant.price ? `+$${variant.price}` : "Base price"} / {variant.stock} units
+                                      {variant.price
+                                        ? `+TND ${variant.price}`
+                                        : "Base price"} / {variant.stock} units
                                     </p>
                                   </div>
                                   <div>
@@ -1375,7 +1377,7 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                       <div>
                         <span className="text-gray-500">Price:</span>
-                        <span className="font-bold text-dark-blue ml-1">${product.price.toFixed(2)}</span>
+                        <span className="font-bold text-dark-blue ml-1">TND {product.price.toFixed(2)}</span>
                       </div>
                       <div>
                         <span className="text-gray-500">Stock:</span>
@@ -1488,7 +1490,7 @@ export default function AdminDashboard() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-dark-blue">
-                          ${order.total.toFixed(2)}
+                          <span className="font-semibold">TND {order.total.toFixed(2)}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <select
@@ -1570,7 +1572,7 @@ export default function AdminDashboard() {
                             <span className="text-gray-500">Status:</span> {selectedOrder.status}
                           </p>
                           <p>
-                            <span className="text-gray-500">Total:</span> ${selectedOrder.total.toFixed(2)}
+                            <span className="text-gray-500">Total:</span> TND {selectedOrder.total.toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -1623,7 +1625,7 @@ export default function AdminDashboard() {
                               <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-dark-blue">${(item.price * item.quantity).toFixed(2)}</p>
+                              <p className="font-bold text-dark-blue">TND {(item.price * item.quantity).toFixed(2)}</p>
                             </div>
                           </div>
                         ))}

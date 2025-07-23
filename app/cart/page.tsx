@@ -91,11 +91,17 @@ export default function CartPage() {
                         <p className="text-sm text-medium-blue font-medium">
                           {item.selectedVariation.name}: {item.selectedVariation.value}
                           {item.selectedVariation.price && item.selectedVariation.price > 0 && (
-                            <span className="text-gray-500 ml-1">(+${item.selectedVariation.price.toFixed(2)})</span>
+                            <span className="text-gray-500 ml-1">(+TND {item.selectedVariation.price.toFixed(2)})</span>
                           )}
                         </p>
                       )}
-                      <p className="text-purple-600 font-bold">${item.price.toFixed(2)}</p>
+                      <div className="flex items-center text-sm">
+                        <span className="text-gray-500">Price:</span>
+                        {item.selectedVariation && item.selectedVariation.price !== undefined && (
+                          <span className="text-gray-500 ml-1">(+TND {item.selectedVariation.price.toFixed(2)})</span>
+                        )}
+                        <p className="text-purple-600 font-bold ml-2">TND {item.price.toFixed(2)}</p>
+                      </div>
                     </div>
 
                     <div className="flex items-center space-x-3">
@@ -144,9 +150,13 @@ export default function CartPage() {
                     <span className="font-semibold text-green-600">Free</span>
                   </div>
                   <div className="border-t pt-3">
-                    <div className="flex justify-between">
-                      <span className="text-lg font-semibold">Total</span>
-                      <span className="text-lg font-bold text-purple-600">${total.toFixed(2)}</span>
+                    <div className="flex justify-between items-center text-xl font-bold mb-6">
+                      <span>Total:</span>
+                      <span className="font-semibold">TND {total.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-lg font-bold mb-6">
+                      <span>Grand Total:</span>
+                      <span className="text-lg font-bold text-purple-600">TND {total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

@@ -223,7 +223,7 @@ export default function ProductPage() {
                 </div>
                 <span className="text-sm text-gray-500">Category: {product.category}</span>
               </div>
-              <p className="text-4xl font-bold text-purple-600 mb-4">${currentPrice.toFixed(2)}</p>
+              <p className="text-4xl font-bold text-purple-600 mb-4">TND {currentPrice.toFixed(2)}</p>
             </div>
 
             <div>
@@ -265,7 +265,7 @@ export default function ProductPage() {
                           >
                             {variant.value}
                             {variant.price && variant.price !== product.price && (
-                              <span className="ml-1 text-xs">(+${(variant.price - product.price).toFixed(2)})</span>
+                              <span className="ml-1 text-xs">(+TND {(variant.price - product.price).toFixed(2)})</span>
                             )}
                           </button>
                         ))}

@@ -228,11 +228,11 @@ export default function CheckoutPage() {
                     <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
-                    {item.selectedVariation?.price && item.selectedVariation.price > 0 && (
-                      <p className="text-xs text-gray-500">
-                        Includes +${(item.selectedVariation.price * item.quantity).toFixed(2)} for{" "}
-                        {item.selectedVariation.value}
+                    <p className="font-semibold text-gray-900">TND {(item.price * item.quantity).toFixed(2)}</p>
+                    {item.selectedVariation && item.selectedVariation.price && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Includes +TND {(item.selectedVariation.price * item.quantity).toFixed(2)} for{" "}
+                        {item.selectedVariation.name}: {item.selectedVariation.value}
                       </p>
                     )}
                   </div>
@@ -243,7 +243,7 @@ export default function CheckoutPage() {
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">${total.toFixed(2)}</span>
+                <span className="font-semibold">TND {total.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
@@ -251,7 +251,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span className="text-purple-600">${total.toFixed(2)}</span>
+                <span className="text-purple-600">TND {total.toFixed(2)}</span>
               </div>
             </div>
 
